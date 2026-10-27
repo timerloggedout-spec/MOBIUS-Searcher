@@ -120,19 +120,23 @@ mod tests {
         );
         let v: serde_json::Value = serde_json::to_value(&m).unwrap();
         let obj = v.as_object().unwrap();
-        let keys: Vec<&str> = obj.keys().map(String::as_str).collect();
+        // The contract is the field SET. Key order in a JSON object is
+        // not meaningful (and serde_json's map ordering depends on the
+        // preserve_order feature), so compare sorted.
+        let mut keys: Vec<&str> = obj.keys().map(String::as_str).collect();
+        keys.sort_unstable();
         assert_eq!(
             keys,
             [
-                "schema",
+                "arch",
                 "commit_sha",
+                "duration_s",
+                "jupiter_tier",
                 "mobius_version",
                 "os",
-                "arch",
-                "scheduler_mode",
-                "duration_s",
                 "rpc_host",
-                "jupiter_tier",
+                "scheduler_mode",
+                "schema",
                 "timestamp_unix_s"
             ]
         );
