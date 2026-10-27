@@ -464,6 +464,14 @@ async fn run(cli: Cli, cfg: Config, db_path: PathBuf) -> Result<()> {
     }
     // Stage latencies (monotonic clocks) → stdout + data/bench/<session>.json
     print!("\n{}", latency.render());
+    // Machine-readable environment block (issue #6): travels with the
+    // benchmark numbers so external reproductions can be compared.
+    let latency = latency.with_metadata(searcher_telemetry::ReportMetadata::capture(
+        format!("{:?}", cfg.scheduler.kind),
+        latency.elapsed_s,
+        &cfg.rpc.resolved_url(),
+        Some(cfg.jupiter.base_url.as_str()),
+    ));
     let dir = db.parent().unwrap_or(std::path::Path::new(".")).join("bench");
     if std::fs::create_dir_all(&dir).is_ok() {
         let path = dir.join(format!("{session}.json"));

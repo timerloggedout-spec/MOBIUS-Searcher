@@ -5,10 +5,12 @@ pub mod health;
 pub mod latency;
 pub mod proxy;
 pub mod ratelimit;
+pub mod report_metadata;
 
 pub use bus::EventBus;
 pub use health::Telemetry;
 pub use latency::{LatencyBook, LatencyReport};
+pub use report_metadata::ReportMetadata;
 pub use ratelimit::{Limiter, LimiterConfig, LimiterState, RateLimiter, WindowLimiter, backoff_delay};
 
 use std::time::Instant;

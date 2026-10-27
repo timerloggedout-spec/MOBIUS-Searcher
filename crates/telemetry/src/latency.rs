@@ -39,6 +39,11 @@ pub struct LatencyReport {
     pub elapsed_s: f64,
     pub series: BTreeMap<String, Stats>,
     pub counters: BTreeMap<String, u64>,
+    /// Machine-readable environment block (issue #6), attached by the
+    /// caller that knows the run's configuration; absent in bare
+    /// library use so existing serializations are unchanged.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<crate::report_metadata::ReportMetadata>,
 }
 
 /// Nearest-rank percentile of a sorted slice.
@@ -99,11 +104,18 @@ impl LatencyBook {
             elapsed_s: self.started.elapsed().as_secs_f64(),
             series,
             counters: self.counters.lock().clone(),
+            metadata: None,
         }
     }
 }
 
 impl LatencyReport {
+    /// Attach the machine-readable metadata block (issue #6).
+    pub fn with_metadata(mut self, metadata: crate::report_metadata::ReportMetadata) -> Self {
+        self.metadata = Some(metadata);
+        self
+    }
+
     /// Aligned text table; `_us` series are shown in ms.
     pub fn render(&self) -> String {
         let mut out = format!(
